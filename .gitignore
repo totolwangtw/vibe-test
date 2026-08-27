@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# 后端运行时数据（数据库与上传附件）
+backend/data/*.db
+backend/data/*.db-journal
+backend/data/uploads/
+
+# 前端依赖与开发缓存
+# 注意：frontend/dist 是构建产物，Windows 用户启动必需，所以必须提交
+frontend/node_modules/
+frontend/.vite/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# 日志
+*.log
