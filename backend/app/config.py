@@ -24,9 +24,14 @@ class Settings(BaseSettings):
     static_dir: str = str(STATIC_DIR)
     # CORS（开发态前端跑在 5173 端口）
     cors_origins: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
-    # 监听
+    # 监听（生产部署在 Nginx 后，建议保持 127.0.0.1 仅本机访问）
     host: str = "127.0.0.1"
     port: int = 8000
+    # 是否信任反向代理转发头（X-Forwarded-For/Proto）。
+    # 部署在 Nginx 后置为 true；直连暴露时保持 false。
+    proxy_headers: bool = False
+    # 受信任的代理 IP（配合 proxy_headers），默认仅信任本机回环
+    forwarded_allow_ips: str = "127.0.0.1"
 
 
 settings = Settings()
