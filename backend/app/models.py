@@ -240,6 +240,81 @@ class Activity(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
+# ---------------- 变更管理 ----------------
+class Change(Base):
+    """变更管理记录"""
+    __tablename__ = "changes"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    project_id = Column(Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True)
+    title = Column(String(256), nullable=False)
+    content_html = Column(Text, nullable=True)  # 变更描述（富文本）
+    change_type = Column(String(16), default="standard")  # standard/emergency/temporary
+    status = Column(String(16), default="draft")  # draft/submitted/approved/implemented/rejected
+    impact_level = Column(String(8), default="M")  # L/M/H/S (低/中/高/严重)
+    requester_id = Column(Integer, ForeignKey("members.id", ondelete="SET NULL"), nullable=True)
+    owner_id = Column(Integer, ForeignKey("members.id", ondelete="SET NULL"), nullable=True)
+    request_date = Column(Date, default=date.today)
+    plan_date = Column(Date, nullable=True)
+    implement_date = Column(Date, nullable=True)
+    impact_html = Column(Text, nullable=True)  # 影响范围
+    rollback_html = Column(Text, nullable=True)  # 回滚方案
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    project = relationship("Project")
+    requester = relationship("Member", foreign_keys=[requester_id])
+    owner = relationship("Member", foreign_keys=[owner_id])
+
+
+# ---------------- 风险管理 ----------------
+class Risk(Base):
+    """风险管理记录"""
+    __tablename__ = "risks"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    project_id = Column(Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True)
+    title = Column(String(256), nullable=False)
+    description_html = Column(Text, nullable=True)  # 风险描述
+    risk_type = Column(String(16), default="technical")  # technical/schedule/resource/external
+    probability = Column(String(8), default="M")  # L/M/H (低/中/高)
+    impact = Column(String(8), default="M")  # L/M/H
+    level = Column(String(8), default="M")  # 综合风险等级 L/M/H/Critical
+    status = Column(String(16), default="open")  # open/mitigating/closed
+    owner_id = Column(Integer, ForeignKey("members.id", ondelete="SET NULL"), nullable=True)
+    due_date = Column(Date, nullable=True)
+    mitigation_html = Column(Text, nullable=True)  # 缓解措施
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    project = relationship("Project")
+    owner = relationship("Member")
+
+
+# ---------------- 问题管理 ----------------
+class Issue(Base):
+    """问题管理记录"""
+    __tablename__ = "issues"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    project_id = Column(Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True)
+    title = Column(String(256), nullable=False)
+    description_html = Column(Text, nullable=True)  # 问题描述
+    issue_type = Column(String(16), default="technical")  # technical/process/resource/communication
+    status = Column(String(16), default="open")  # open/investigating/resolved/closed
+    priority = Column(String(8), default="P2")  # P0/P1/P2/P3
+    owner_id = Column(Integer, ForeignKey("members.id", ondelete="SET NULL"), nullable=True)
+    raised_date = Column(Date, default=date.today)
+    due_date = Column(Date, nullable=True)
+    resolution_html = Column(Text, nullable=True)  # 解决方案
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    project = relationship("Project")
+    owner = relationship("Member")
+
+
+
 # ---------------- 种子数据 ----------------
 def seed(db) -> None:
     """首次启动写入示例数据，便于直接体验"""

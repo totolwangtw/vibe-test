@@ -11,11 +11,15 @@ from app.config import settings, STATIC_DIR
 from app.database import init_db
 from app.routers import (
     attachments,
+    changes,
+    csv as csv_router,
     dashboard,
     holidays,
+    issues,
     meetings,
     members,
     projects,
+    risks,
     tasks,
     todos,
 )
@@ -45,7 +49,8 @@ app.add_middleware(
 )
 
 # 路由
-for r in (members, projects, tasks, attachments, meetings, todos, holidays, dashboard):
+for r in (members, projects, tasks, attachments, meetings, todos, holidays,
+          dashboard, changes, risks, issues, csv_router):
     app.include_router(r.router)
 
 

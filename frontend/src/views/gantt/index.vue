@@ -13,7 +13,25 @@
           <el-button :icon="Refresh" @click="load">刷新</el-button>
         </div>
       </div>
-      <div ref="ganttEl" class="gantt-box"></div>
+      <div class="gantt-wrap" :style="{ height: ganttHeight + 'px' }">
+        <div ref="ganttEl" class="gantt-box"></div>
+        <!-- 时间刻度标题栏拖拽条：拖拽改变表头高度 -->
+        <div
+          class="gantt-scale-resizer"
+          :style="{ top: scaleHeight - 4 + 'px' }"
+          @mousedown="startScaleResize"
+          title="拖拽调整标题栏高度"
+        ></div>
+        <!-- 整体高度调整柄：拖拽改变甘特图整体高度 -->
+        <div
+          class="gantt-box-resizer"
+          @mousedown="startBoxResize"
+          title="拖拽调整甘特图高度"
+        ></div>
+      </div>
+      <div class="text-sm text-secondary mt-8">
+        提示：可拖拽顶部时间刻度栏边缘调整表头高度；拖拽底部边缘调整甘特图整体高度。
+      </div>
     </div>
   </div>
 </template>
@@ -33,17 +51,84 @@ const viewMode = ref<'day' | 'week' | 'month'>('week')
 const showCritical = ref(false)
 const members = ref<Member[]>([])
 
+// 标题栏（时间刻度表头）高度，可拖拽调整
+const scaleHeight = ref(60)
+// 整体甘特图高度，可拖拽调整
+const ganttHeight = ref(Math.max(480, window.innerHeight - 240))
+
 let mounted = false
+
+// ---------- 拖拽：调整时间刻度标题栏高度 ----------
+let scaleResizing = false
+let scaleStartY = 0
+let scaleStartH = 0
+
+function startScaleResize(e: MouseEvent) {
+  e.preventDefault()
+  scaleResizing = true
+  scaleStartY = e.clientY
+  scaleStartH = scaleHeight.value
+  document.addEventListener('mousemove', onScaleResize)
+  document.addEventListener('mouseup', stopScaleResize)
+  document.body.style.cursor = 'ns-resize'
+  document.body.style.userSelect = 'none'
+}
+function onScaleResize(e: MouseEvent) {
+  if (!scaleResizing) return
+  const delta = e.clientY - scaleStartY
+  const next = Math.max(28, Math.min(200, scaleStartH + delta))
+  scaleHeight.value = next
+  if (mounted && gantt.config) {
+    gantt.config.scale_height = next
+    gantt.render()
+  }
+}
+function stopScaleResize() {
+  scaleResizing = false
+  document.removeEventListener('mousemove', onScaleResize)
+  document.removeEventListener('mouseup', stopScaleResize)
+  document.body.style.cursor = ''
+  document.body.style.userSelect = ''
+}
+
+// ---------- 拖拽：调整甘特图整体高度 ----------
+let boxResizing = false
+let boxStartY = 0
+let boxStartH = 0
+
+function startBoxResize(e: MouseEvent) {
+  e.preventDefault()
+  boxResizing = true
+  boxStartY = e.clientY
+  boxStartH = ganttHeight.value
+  document.addEventListener('mousemove', onBoxResize)
+  document.addEventListener('mouseup', stopBoxResize)
+  document.body.style.cursor = 'ns-resize'
+  document.body.style.userSelect = 'none'
+}
+function onBoxResize(e: MouseEvent) {
+  if (!boxResizing) return
+  const delta = e.clientY - boxStartY
+  const next = Math.max(300, Math.min(2400, boxStartH + delta))
+  ganttHeight.value = next
+}
+function stopBoxResize() {
+  boxResizing = false
+  document.removeEventListener('mousemove', onBoxResize)
+  document.removeEventListener('mouseup', stopBoxResize)
+  document.body.style.cursor = ''
+  document.body.style.userSelect = ''
+}
 
 function setZoom() {
   if (viewMode.value === 'day') {
     gantt.config.scale_unit = 'day'
-    gantt.config.scale_height = 60
+    gantt.config.scale_height = scaleHeight.value
     gantt.config.subscales = [{ unit: 'hour', step: 4, format: '%H:%i' }]
     gantt.config.min_column_width = 40
   } else if (viewMode.value === 'week') {
     gantt.config.scale_unit = 'week'
-    gantt.config.scale_height = 60
+    gantt.config.scale_height = scaleHeight.value
     gantt.config.subscales = [
       { unit: 'week', step: 1, format: (d: Date) => `第 ${gantt.date.weekStart(d).getWeek()} 周` },
       { unit: 'day', step: 1, format: '%j %D' },
@@ -51,7 +136,7 @@ function setZoom() {
     gantt.config.min_column_width = 50
   } else {
     gantt.config.scale_unit = 'month'
-    gantt.config.scale_height = 60
+    gantt.config.scale_height = scaleHeight.value
     gantt.config.subscales = [{ unit: 'week', step: 1, format: 'W%W' }]
     gantt.config.min_column_width = 80
   }
@@ -80,6 +165,7 @@ function initGantt() {
   gantt.config.bar_height = 20
   gantt.config.grid_width = 420
   gantt.config.autosize = false
+  gantt.config.scale_height = scaleHeight.value
   gantt.config.drag_progress = true
   gantt.config.drag_move = true
   gantt.config.drag_resize = true
@@ -193,17 +279,59 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   if (mounted) gantt.clearAll()
+  // 清理拖拽监听
+  document.removeEventListener('mousemove', onScaleResize)
+  document.removeEventListener('mouseup', stopScaleResize)
+  document.removeEventListener('mousemove', onBoxResize)
+  document.removeEventListener('mouseup', stopBoxResize)
 })
 </script>
 
 <style>
 @import 'dhtmlx-gantt/codebase/dhtmlxgantt.css';
 
+.gantt-wrap {
+  position: relative;
+  width: 100%;
+}
+
 .gantt-box {
   width: 100%;
-  height: calc(100vh - 220px);
-  min-height: 480px;
+  height: 100%;
+  min-height: 300px;
 }
+
+/* 时间刻度标题栏拖拽条 */
+.gantt-scale-resizer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 8px;
+  cursor: ns-resize;
+  z-index: 10;
+  background: transparent;
+  &:hover {
+    background: rgba(64, 158, 255, 0.25);
+  }
+}
+
+/* 整体高度调整柄（底部边缘） */
+.gantt-box-resizer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 6px;
+  cursor: ns-resize;
+  z-index: 10;
+  background: transparent;
+  border-top: 2px solid transparent;
+  &:hover {
+    border-top-color: var(--pm-primary);
+    background: rgba(64, 158, 255, 0.15);
+  }
+}
+
 .gantt-pri-p0 .gantt_task_content {
   background: #f53f3f !important;
 }

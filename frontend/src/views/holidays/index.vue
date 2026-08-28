@@ -3,7 +3,10 @@
     <div class="card-section">
       <div class="flex-between mb-16">
         <h3 style="margin: 0">假期管理</h3>
-        <el-button type="primary" :icon="Plus" @click="openCreate">新增假期</el-button>
+        <div class="flex gap-8 flex-center">
+          <CsvToolbar :export-url="api.csv.exportHolidays()" :import-fn="undefined" />
+          <el-button type="primary" :icon="Plus" @click="openCreate">新增假期</el-button>
+        </div>
       </div>
       <div class="mb-16 flex gap-8 flex-center">
         <el-select v-model="filterMember" placeholder="按成员筛选" clearable filterable style="width: 200px">
@@ -77,6 +80,7 @@ import { computed, onMounted, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { api, type Member, type Holiday } from '@/api'
+import CsvToolbar from '@/components/CsvToolbar.vue'
 
 const members = ref<Member[]>([])
 const holidays = ref<Holiday[]>([])

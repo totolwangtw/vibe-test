@@ -11,7 +11,14 @@
             <el-radio-button value="done">已完成</el-radio-button>
           </el-radio-group>
         </div>
-        <el-button type="primary" :icon="Plus" @click="openCreate">新建待办</el-button>
+        <div class="flex gap-8 flex-center">
+          <CsvToolbar
+            :export-url="api.csv.exportTodos(pid)"
+            :import-fn="(f: File) => api.csv.importTodos(pid, f)"
+            @imported="load"
+          />
+          <el-button type="primary" :icon="Plus" @click="openCreate">新建待办</el-button>
+        </div>
       </div>
 
       <el-table :data="filtered" border size="small">
@@ -114,6 +121,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { api, type Todo, type Member } from '@/api'
 import PriorityTag from '@/components/PriorityTag.vue'
+import CsvToolbar from '@/components/CsvToolbar.vue'
 
 const route = useRoute()
 const pid = computed(() => Number(route.params.id))

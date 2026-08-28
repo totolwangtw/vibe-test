@@ -73,7 +73,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Back, Plus, List, Calendar, ChatLineSquare, Checked } from '@element-plus/icons-vue'
+import { Back, Plus, List, Calendar, ChatLineSquare, Checked, Switch, WarnTriangleFilled, Warning } from '@element-plus/icons-vue'
 import { api, type Project, type Member } from '@/api'
 import StatusTag from '@/components/StatusTag.vue'
 import PriorityTag from '@/components/PriorityTag.vue'
@@ -92,6 +92,9 @@ const menus = [
   { path: 'gantt', title: '甘特图', desc: '日 / 周 / 月视图', icon: Calendar, color: '#67C23A' },
   { path: 'meetings', title: '会议记录', desc: '日会 / 周会 / @ 提及', icon: ChatLineSquare, color: '#E6A23C' },
   { path: 'todos', title: '待办追踪', desc: '会议产出 / 责任人', icon: Checked, color: '#F56C6C' },
+  { path: 'changes', title: '变更管理', desc: '变更记录 / 影响分析 / 回滚', icon: Switch, color: '#9254DE' },
+  { path: 'risks', title: '风险管理', desc: '风险识别 / 评估 / 应对', icon: WarnTriangleFilled, color: '#FF7D00' },
+  { path: 'issues', title: '问题管理', desc: '问题跟踪 / 解决 / 关闭', icon: Warning, color: '#F53F3F' },
 ]
 
 const stats = computed(() => {

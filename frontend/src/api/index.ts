@@ -108,6 +108,53 @@ export interface Holiday {
   end_date: string
   note?: string
 }
+export interface Change {
+  id: number
+  project_id: number
+  title: string
+  content_html?: string
+  change_type: string
+  status: string
+  impact_level: string
+  requester_id?: number
+  requester?: Member
+  owner_id?: number
+  owner?: Member
+  request_date?: string
+  plan_date?: string
+  implement_date?: string
+  impact_html?: string
+  rollback_html?: string
+}
+export interface Risk {
+  id: number
+  project_id: number
+  title: string
+  description_html?: string
+  risk_type: string
+  probability: string
+  impact: string
+  level: string
+  status: string
+  owner_id?: number
+  owner?: Member
+  due_date?: string
+  mitigation_html?: string
+}
+export interface Issue {
+  id: number
+  project_id: number
+  title: string
+  description_html?: string
+  issue_type: string
+  status: string
+  priority: string
+  owner_id?: number
+  owner?: Member
+  raised_date?: string
+  due_date?: string
+  resolution_html?: string
+}
 
 // ---------- API ----------
 export const api = {
@@ -189,5 +236,82 @@ export const api = {
   gantt: {
     data: (pid: number) => http.get<any, { tasks: any[]; links: any[] }>(`/projects/${pid}/gantt`),
     update: (pid: number, d: any) => http.put(`/projects/${pid}/gantt`, d),
+  },
+  // changes
+  changes: {
+    list: (pid: number) => http.get<any, Change[]>(`/projects/${pid}/changes`),
+    get: (id: number) => http.get<any, Change>(`/changes/${id}`),
+    create: (d: any) => http.post<any, Change>('/changes', d),
+    update: (id: number, d: any) => http.put<any, Change>(`/changes/${id}`, d),
+    remove: (id: number) => http.delete(`/changes/${id}`),
+    exportCsv: (pid: number) => `/api/projects/${pid}/changes/export.csv`,
+    importCsv: (pid: number, file: File) => {
+      const fd = new FormData()
+      fd.append('file', file)
+      return http.post<any, any>(`/projects/${pid}/changes/import.csv`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+    },
+  },
+  // risks
+  risks: {
+    list: (pid: number) => http.get<any, Risk[]>(`/projects/${pid}/risks`),
+    get: (id: number) => http.get<any, Risk>(`/risks/${id}`),
+    create: (d: any) => http.post<any, Risk>('/risks', d),
+    update: (id: number, d: any) => http.put<any, Risk>(`/risks/${id}`, d),
+    remove: (id: number) => http.delete(`/risks/${id}`),
+    exportCsv: (pid: number) => `/api/projects/${pid}/risks/export.csv`,
+    importCsv: (pid: number, file: File) => {
+      const fd = new FormData()
+      fd.append('file', file)
+      return http.post<any, any>(`/projects/${pid}/risks/import.csv`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+    },
+  },
+  // issues
+  issues: {
+    list: (pid: number) => http.get<any, Issue[]>(`/projects/${pid}/issues`),
+    get: (id: number) => http.get<any, Issue>(`/issues/${id}`),
+    create: (d: any) => http.post<any, Issue>('/issues', d),
+    update: (id: number, d: any) => http.put<any, Issue>(`/issues/${id}`, d),
+    remove: (id: number) => http.delete(`/issues/${id}`),
+    exportCsv: (pid: number) => `/api/projects/${pid}/issues/export.csv`,
+    importCsv: (pid: number, file: File) => {
+      const fd = new FormData()
+      fd.append('file', file)
+      return http.post<any, any>(`/projects/${pid}/issues/import.csv`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+    },
+  },
+  // csv 导入导出（通用模块）
+  csv: {
+    exportTasks: (pid: number) => `/api/projects/${pid}/tasks/export.csv`,
+    importTasks: (pid: number, file: File) => {
+      const fd = new FormData()
+      fd.append('file', file)
+      return http.post<any, any>(`/projects/${pid}/tasks/import.csv`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+    },
+    exportTodos: (pid: number) => `/api/projects/${pid}/todos/export.csv`,
+    importTodos: (pid: number, file: File) => {
+      const fd = new FormData()
+      fd.append('file', file)
+      return http.post<any, any>(`/projects/${pid}/todos/import.csv`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+    },
+    exportMeetings: (pid: number) => `/api/projects/${pid}/meetings/export.csv`,
+    exportMembers: () => `/api/members/export.csv`,
+    importMembers: (file: File) => {
+      const fd = new FormData()
+      fd.append('file', file)
+      return http.post<any, any>('/members/import.csv', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+    },
+    exportHolidays: () => `/api/holidays/export.csv`,
   },
 }

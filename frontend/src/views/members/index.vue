@@ -3,7 +3,14 @@
     <div class="card-section">
       <div class="flex-between mb-16">
         <h3 style="margin: 0">成员管理</h3>
-        <el-button type="primary" :icon="Plus" @click="openCreate">新建成员</el-button>
+        <div class="flex gap-8 flex-center">
+          <CsvToolbar
+            :export-url="api.csv.exportMembers()"
+            :import-fn="(f: File) => api.csv.importMembers(f)"
+            @imported="load"
+          />
+          <el-button type="primary" :icon="Plus" @click="openCreate">新建成员</el-button>
+        </div>
       </div>
       <el-row :gutter="16">
         <el-col :span="6" v-for="m in members" :key="m.id">
@@ -57,6 +64,7 @@ import { onMounted, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, More } from '@element-plus/icons-vue'
 import { api, type Member } from '@/api'
+import CsvToolbar from '@/components/CsvToolbar.vue'
 
 const members = ref<Member[]>([])
 const dialogVisible = ref(false)

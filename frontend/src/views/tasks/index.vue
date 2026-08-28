@@ -14,6 +14,11 @@
           </el-select>
         </div>
         <div class="flex gap-8">
+          <CsvToolbar
+            :export-url="api.csv.exportTasks(pid)"
+            :import-fn="(f: File) => api.csv.importTasks(pid, f)"
+            @imported="load"
+          />
           <el-button :icon="Expand" @click="expandAll(true)">全部展开</el-button>
           <el-button :icon="Fold" @click="expandAll(false)">全部折叠</el-button>
           <el-button type="primary" :icon="Plus" @click="openCreate(null)">新建任务</el-button>
@@ -258,6 +263,7 @@ import {
 } from '@element-plus/icons-vue'
 import { api, type Task, type Member } from '@/api'
 import RichEditor from '@/components/RichEditor.vue'
+import CsvToolbar from '@/components/CsvToolbar.vue'
 
 const route = useRoute()
 const pid = computed(() => Number(route.params.id))

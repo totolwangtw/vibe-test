@@ -49,6 +49,24 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '待办追踪', icon: 'Checked', parent: 'Projects' },
       },
       {
+        path: 'projects/:id/changes',
+        name: 'Changes',
+        component: () => import('@/views/changes/index.vue'),
+        meta: { title: '变更管理', icon: 'Switch', parent: 'Projects' },
+      },
+      {
+        path: 'projects/:id/risks',
+        name: 'Risks',
+        component: () => import('@/views/risks/index.vue'),
+        meta: { title: '风险管理', icon: 'WarnTriangle', parent: 'Projects' },
+      },
+      {
+        path: 'projects/:id/issues',
+        name: 'Issues',
+        component: () => import('@/views/issues/index.vue'),
+        meta: { title: '问题管理', icon: 'Warning', parent: 'Projects' },
+      },
+      {
         path: 'members',
         name: 'Members',
         component: () => import('@/views/members/index.vue'),

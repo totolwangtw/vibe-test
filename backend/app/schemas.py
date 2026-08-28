@@ -334,6 +334,157 @@ class HolidayOut(ORM):
     created_at: Optional[datetime]
 
 
+# ---------- 变更管理 ----------
+class ChangeBase(BaseModel):
+    title: str
+    content_html: Optional[str] = None
+    change_type: str = "standard"
+    status: str = "draft"
+    impact_level: str = "M"
+    requester_id: Optional[int] = None
+    owner_id: Optional[int] = None
+    request_date: Optional[date] = None
+    plan_date: Optional[date] = None
+    implement_date: Optional[date] = None
+    impact_html: Optional[str] = None
+    rollback_html: Optional[str] = None
+
+
+class ChangeCreate(ChangeBase):
+    project_id: int
+
+
+class ChangeUpdate(BaseModel):
+    title: Optional[str] = None
+    content_html: Optional[str] = None
+    change_type: Optional[str] = None
+    status: Optional[str] = None
+    impact_level: Optional[str] = None
+    requester_id: Optional[int] = None
+    owner_id: Optional[int] = None
+    request_date: Optional[date] = None
+    plan_date: Optional[date] = None
+    implement_date: Optional[date] = None
+    impact_html: Optional[str] = None
+    rollback_html: Optional[str] = None
+
+
+class ChangeOut(ORM):
+    id: int
+    project_id: int
+    title: str
+    content_html: Optional[str]
+    change_type: str
+    status: str
+    impact_level: str
+    requester_id: Optional[int]
+    requester: Optional[MemberOut] = None
+    owner_id: Optional[int]
+    owner: Optional[MemberOut] = None
+    request_date: Optional[date]
+    plan_date: Optional[date]
+    implement_date: Optional[date]
+    impact_html: Optional[str]
+    rollback_html: Optional[str]
+    created_at: Optional[datetime]
+    updated_at: Optional[datetime]
+
+
+# ---------- 风险管理 ----------
+class RiskBase(BaseModel):
+    title: str
+    description_html: Optional[str] = None
+    risk_type: str = "technical"
+    probability: str = "M"
+    impact: str = "M"
+    level: str = "M"
+    status: str = "open"
+    owner_id: Optional[int] = None
+    due_date: Optional[date] = None
+    mitigation_html: Optional[str] = None
+
+
+class RiskCreate(RiskBase):
+    project_id: int
+
+
+class RiskUpdate(BaseModel):
+    title: Optional[str] = None
+    description_html: Optional[str] = None
+    risk_type: Optional[str] = None
+    probability: Optional[str] = None
+    impact: Optional[str] = None
+    level: Optional[str] = None
+    status: Optional[str] = None
+    owner_id: Optional[int] = None
+    due_date: Optional[date] = None
+    mitigation_html: Optional[str] = None
+
+
+class RiskOut(ORM):
+    id: int
+    project_id: int
+    title: str
+    description_html: Optional[str]
+    risk_type: str
+    probability: str
+    impact: str
+    level: str
+    status: str
+    owner_id: Optional[int]
+    owner: Optional[MemberOut] = None
+    due_date: Optional[date]
+    mitigation_html: Optional[str]
+    created_at: Optional[datetime]
+    updated_at: Optional[datetime]
+
+
+# ---------- 问题管理 ----------
+class IssueBase(BaseModel):
+    title: str
+    description_html: Optional[str] = None
+    issue_type: str = "technical"
+    status: str = "open"
+    priority: str = "P2"
+    owner_id: Optional[int] = None
+    raised_date: Optional[date] = None
+    due_date: Optional[date] = None
+    resolution_html: Optional[str] = None
+
+
+class IssueCreate(IssueBase):
+    project_id: int
+
+
+class IssueUpdate(BaseModel):
+    title: Optional[str] = None
+    description_html: Optional[str] = None
+    issue_type: Optional[str] = None
+    status: Optional[str] = None
+    priority: Optional[str] = None
+    owner_id: Optional[int] = None
+    raised_date: Optional[date] = None
+    due_date: Optional[date] = None
+    resolution_html: Optional[str] = None
+
+
+class IssueOut(ORM):
+    id: int
+    project_id: int
+    title: str
+    description_html: Optional[str]
+    issue_type: str
+    status: str
+    priority: str
+    owner_id: Optional[int]
+    owner: Optional[MemberOut] = None
+    raised_date: Optional[date]
+    due_date: Optional[date]
+    resolution_html: Optional[str]
+    created_at: Optional[datetime]
+    updated_at: Optional[datetime]
+
+
 # ---------- Dashboard ----------
 class DashboardOverview(BaseModel):
     project_count: int

@@ -10,7 +10,13 @@
             <el-radio-button value="weekly">周会</el-radio-button>
           </el-radio-group>
         </div>
-        <el-button type="primary" :icon="Plus" @click="openCreate">新建会议</el-button>
+        <div class="flex gap-8 flex-center">
+          <CsvToolbar
+            :export-url="api.csv.exportMeetings(pid)"
+            :import-fn="undefined"
+          />
+          <el-button type="primary" :icon="Plus" @click="openCreate">新建会议</el-button>
+        </div>
       </div>
 
       <el-timeline>
@@ -117,6 +123,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Delete } from '@element-plus/icons-vue'
 import { api, type Meeting, type Member } from '@/api'
 import RichEditor from '@/components/RichEditor.vue'
+import CsvToolbar from '@/components/CsvToolbar.vue'
 
 const route = useRoute()
 const pid = computed(() => Number(route.params.id))
@@ -138,10 +145,14 @@ async function load() {
 }
 
 function openCreate() {
+  // 默认选中当前筛选的会议类型（日会/周会），未筛选时默认周会
+  const defaultType = filterType.value === 'daily' ? 'daily' : (filterType.value === 'weekly' ? 'weekly' : 'weekly')
   form.value = {
     project_id: pid.value,
-    title: '', meeting_type: 'weekly', meeting_date: new Date().toISOString().slice(0, 10),
-    start_time: '10:00', end_time: '11:00', host_id: null, attendees: [],
+    title: '', meeting_type: defaultType, meeting_date: new Date().toISOString().slice(0, 10),
+    start_time: defaultType === 'daily' ? '09:30' : '10:00',
+    end_time: defaultType === 'daily' ? '10:00' : '11:00',
+    host_id: null, attendees: [],
     content_html: '', todos: [],
   }
   dialogVisible.value = true
