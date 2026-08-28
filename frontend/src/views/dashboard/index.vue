@@ -8,8 +8,9 @@
             <el-icon><component :is="card.icon" /></el-icon>
           </div>
           <div class="stat-body">
-            <div class="stat-value">{{ card.value }}</div>
+            <div class="stat-value" @click="card.to && router.push(card.to)">{{ card.value }}</div>
             <div class="stat-label">{{ card.label }}</div>
+            <div v-if="card.sub" class="stat-sub" @click="card.subTo && router.push(card.subTo)">{{ card.sub }}</div>
           </div>
         </div>
       </el-col>
@@ -50,7 +51,9 @@
               </template>
             </el-table-column>
             <el-table-column label="任务" width="80" align="center">
-              <template #default="{ row }">{{ row.done_task_count }}/{{ row.task_count }}</template>
+              <template #default="{ row }">
+                <span class="link-num" @click.stop="$router.push(`/projects/${row.id}/tasks`)">{{ row.done_task_count }}/{{ row.task_count }}</span>
+              </template>
             </el-table-column>
             <el-table-column label="逾期" width="60" align="center">
               <template #default="{ row }">
@@ -153,11 +156,14 @@ let hoursChart: echarts.ECharts | null = null
 async function load() {
   data.value = await api.dashboard.overview()
   const o = data.value.overview
+  const first = data.value.projects?.[0]
+  const taskPath = first ? `/projects/${first.id}/tasks` : '/projects'
+  const todoPath = first ? `/projects/${first.id}/todos` : '/members'
   cards.value = [
-    { label: '项目数', value: o.project_count, sub: `活跃 ${o.active_project_count}`, icon: Folder, color: '#409EFF' },
-    { label: '任务总数', value: o.task_count, sub: `已完成 ${o.done_task_count}`, icon: List, color: '#67C23A' },
-    { label: '进行中', value: o.in_progress_count, sub: `逾期 ${o.overdue_count}`, icon: Clock, color: '#E6A23C' },
-    { label: '待办', value: o.open_todo_count, sub: `成员 ${o.member_count}`, icon: Bell, color: '#F56C6C' },
+    { label: '项目数', value: o.project_count, sub: `活跃 ${o.active_project_count}`, icon: Folder, color: '#409EFF', to: '/projects', subTo: '/projects' },
+    { label: '任务总数', value: o.task_count, sub: `已完成 ${o.done_task_count}`, icon: List, color: '#67C23A', to: taskPath, subTo: taskPath },
+    { label: '进行中', value: o.in_progress_count, sub: `逾期 ${o.overdue_count}`, icon: Clock, color: '#E6A23C', to: taskPath, subTo: taskPath },
+    { label: '待办', value: o.open_todo_count, sub: `成员 ${o.member_count}`, icon: Bell, color: '#F56C6C', to: todoPath, subTo: '/members' },
   ]
   await nextTick()
   renderCharts()
@@ -301,11 +307,34 @@ watch(() => data.value, () => nextTick(renderCharts))
     font-size: 24px;
     font-weight: 700;
     line-height: 1.2;
+    cursor: pointer;
+    transition: color 0.2s;
+    &:hover {
+      color: var(--pm-primary);
+    }
   }
   .stat-label {
     color: var(--pm-text-secondary);
     font-size: 12px;
     margin-top: 2px;
+  }
+  .stat-sub {
+    color: var(--pm-text-secondary);
+    font-size: 12px;
+    margin-top: 2px;
+    cursor: pointer;
+    transition: color 0.2s;
+    &:hover {
+      color: var(--pm-primary);
+    }
+  }
+}
+
+.link-num {
+  color: var(--pm-primary);
+  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
   }
 }
 
